@@ -1,30 +1,47 @@
-version: "3.9"
+version: "3.8"
 
 services:
-	postgres:
-		image: postgres:16-alpine
-		container_name: proyecto1-postgres
-		environment:
-			POSTGRES_DB: proyecto1db
-			POSTGRES_USER: proyecto1
-			POSTGRES_PASSWORD: proyecto1
-		ports:
-			- "5432:5432"
-		volumes:
-			- postgres_data:/var/lib/postgresql/data
+  api:
+    image: proyecto1-api:1.0
+    ports:
+      - "8080:8080"
+    networks:
+      - red-interna
+    environment:
+      DB_HOST: db
+      DB_USER: admin
+      DB_PASSWORD: "1234"
+      DB_NAME: proyecto1db
+      SERVER_PORT: 8080
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 1
+        delay: 10s
+    depends_on:
+      - db
 
-	app:
-		build: .
-		container_name: proyecto1-app
-		depends_on:
-			- postgres
-		environment:
-			SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/proyecto1db
-			SPRING_DATASOURCE_USERNAME: proyecto1
-			SPRING_DATASOURCE_PASSWORD: proyecto1
-			SERVER_PORT: 8080
-		ports:
-			- "8080:8080"
+  db:
+    image: postgres:15
+    networks:
+      - red-interna
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: "1234"
+      POSTGRES_DB: proyecto1db
+    volumes:
+      - datos-postgres:/var/lib/postgresql/data
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+networks:
+  red-interna:
+    driver: overlay
 
 volumes:
-	postgres_data:
+  datos-postgres:
