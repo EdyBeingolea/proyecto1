@@ -1,3 +1,19 @@
 spring:
   application:
     name: proyecto1
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/proyecto1db}
+    username: ${SPRING_DATASOURCE_USERNAME:proyecto1}
+    password: ${SPRING_DATASOURCE_PASSWORD:proyecto1}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+server:
+  port: ${SERVER_PORT:8080}

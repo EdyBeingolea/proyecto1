@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+	postgres:
+		image: postgres:16-alpine
+		container_name: proyecto1-postgres
+		environment:
+			POSTGRES_DB: proyecto1db
+			POSTGRES_USER: proyecto1
+			POSTGRES_PASSWORD: proyecto1
+		ports:
+			- "5432:5432"
+		volumes:
+			- postgres_data:/var/lib/postgresql/data
+
+	app:
+		build: .
+		container_name: proyecto1-app
+		depends_on:
+			- postgres
+		environment:
+			SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/proyecto1db
+			SPRING_DATASOURCE_USERNAME: proyecto1
+			SPRING_DATASOURCE_PASSWORD: proyecto1
+			SERVER_PORT: 8080
+		ports:
+			- "8080:8080"
+
+volumes:
+	postgres_data:
